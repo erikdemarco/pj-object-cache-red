@@ -12,6 +12,13 @@
  */
 
 /**
+ * Configurable settings
+ */
+if ( ! defined( 'WP_REDIS_DEFAULT_EXPIRE_SECONDS' ) ) {
+	define( 'WP_REDIS_DEFAULT_EXPIRE_SECONDS', 0 );
+}
+
+/**
  * Check if Redis class is installed and caching is not disabled.
  * If false, prevent functions and classes from being defined.
  */
@@ -32,7 +39,7 @@ if ( class_exists( 'Redis' ) && ( ! defined( 'WP_REDIS_DISABLED' ) || ! WP_REDIS
  *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_add( $key, $value, $group = 'default', $expiration = 0 ) {
+function wp_cache_add( $key, $value, $group = 'default', WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 	global $wp_object_cache;
 	return $wp_object_cache->add( $key, $value, $group, $expiration );
 }
@@ -177,7 +184,7 @@ function wp_cache_init() {
  *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_replace( $key, $value, $group = 'default', $expiration = 0 ) {
+function wp_cache_replace( $key, $value, $group = 'default', WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 	global $wp_object_cache;
 	return $wp_object_cache->replace( $key, $value, $group, $expiration );
 }
@@ -196,7 +203,7 @@ function wp_cache_replace( $key, $value, $group = 'default', $expiration = 0 ) {
  *
  * @return bool              Returns TRUE on success or FALSE on failure.
  */
-function wp_cache_set( $key, $value, $group = 'default', $expiration = 0 ) {
+function wp_cache_set( $key, $value, $group = 'default', WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 	global $wp_object_cache;
 	return $wp_object_cache->set( $key, $value, $group, $expiration );
 }
@@ -456,7 +463,7 @@ class WP_Object_Cache {
 	 * @param   int    $expiration     The expiration time, defaults to 0.
 	 * @return  bool                   Returns TRUE on success or FALSE on failure.
 	 */
-	public function add( $_key, $value, $group, $expiration = 0 ) {
+	public function add( $_key, $value, $group, WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 		if ( wp_suspend_cache_addition() ) {
 			return false;
 		}
@@ -482,7 +489,7 @@ class WP_Object_Cache {
 	 * @param   int    $expiration     The expiration time, defaults to 0.
 	 * @return  bool                   Returns TRUE on success or FALSE on failure.
 	 */
-	public function replace( $_key, $value, $group, $expiration = 0 ) {
+	public function replace( $_key, $value, $group, WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 		list( $key, $redis_key ) = $this->build_key( $_key, $group );
 
 		// If group is a non-Redis group, save to internal cache, not Redis
@@ -682,7 +689,7 @@ class WP_Object_Cache {
 	 * @param   int    $expiration The expiration time, defaults to 0.
 	 * @return  bool               Returns TRUE on success or FALSE on failure.
 	 */
-	public function set( $_key, $value, $group = 'default', $expiration = 0 ) {
+	public function set( $_key, $value, $group = 'default', WP_REDIS_DEFAULT_EXPIRE_SECONDS ) {
 		list( $key, $redis_key ) = $this->build_key( $_key, $group );
 
 		if ( is_object( $value ) ) {
